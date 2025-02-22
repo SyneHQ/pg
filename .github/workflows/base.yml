@@ -14,6 +14,9 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,7 +26,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_TOKEN }}        
+          password: ${{ secrets.GITHUB_TOKEN }}        
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
