@@ -24,14 +24,36 @@ RUN chown postgres:postgres /docker-entrypoint-initdb.d/init.sql
 # Expose PostgreSQL port
 EXPOSE 5432
 
+# Create healthcheck script
+COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
+#!/bin/bash
+set -eo pipefail
+
+host="$(hostname -i || echo '127.0.0.1')"
 user="${POSTGRES_USER:-postgres}"
 db="${POSTGRES_DB:-$user}"
 
 export PGPASSWORD="${POSTGRES_PASSWORD:-}"
 
+args=(
+    --host "$host"
+    --username "$user"
+    --dbname "$db"
+    --quiet --no-align --tuples-only
+)
+
+if SELECT 1 FROM pg_database WHERE datname='$db' >/dev/null 2>&1; then
+    exit 0
+fi
+
+exit 1
+EOF
+
+RUN chmod +x /usr/local/bin/docker-healthcheck
+
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD pg_isready -U $user -d $db || exit 1
+    CMD ["docker-healthcheck"]
 
 # Set production-ready PostgreSQL configurations
 CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]
