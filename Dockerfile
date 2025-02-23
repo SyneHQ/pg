@@ -24,9 +24,14 @@ RUN chown postgres:postgres /docker-entrypoint-initdb.d/init.sql
 # Expose PostgreSQL port
 EXPOSE 5432
 
+user="${POSTGRES_USER:-postgres}"
+db="${POSTGRES_DB:-$user}"
+
+export PGPASSWORD="${POSTGRES_PASSWORD:-}"
+
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD pg_isready -U postgres || exit 1
+    CMD pg_isready -U $user -d $db || exit 1
 
 # Set production-ready PostgreSQL configurations
 CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]
