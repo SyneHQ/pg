@@ -52,4 +52,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 EXPOSE 5432
 
 # Set the default command to use the custom config file
-CMD ["postgres"]
+CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]

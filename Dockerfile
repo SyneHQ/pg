@@ -29,4 +29,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD pg_isready -U postgres || exit 1
 
 # Set production-ready PostgreSQL configurations
-CMD ["postgres"]
+CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]
