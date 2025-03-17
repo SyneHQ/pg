@@ -7,7 +7,17 @@ LABEL org.opencontainers.image.description="SyneHQ PostgreSQL with pg_stat_state
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Install additional required packages
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata musl-locales musl-locales-lang
+
+# Set environment variables
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+
+
+# Create directory for logs
+RUN mkdir -p /var/lib/postgresql/log && \
+    chown -R postgres:postgres /var/lib/postgresql/log
 
 # Create directory for custom configurations
 RUN mkdir -p /etc/postgresql/conf.d && \
@@ -54,6 +64,9 @@ RUN chmod +x /usr/local/bin/docker-healthcheck
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD ["docker-healthcheck"]
+
+# Create a volume for persistent data
+VOLUME ["/var/lib/postgresql/data", "/var/lib/postgresql/log", "/etc/postgresql/ssl"]
 
 # Set production-ready PostgreSQL configurations
 CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]

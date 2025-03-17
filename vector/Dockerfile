@@ -6,6 +6,13 @@ LABEL org.opencontainers.image.source="https://github.com/synehq/pg-pgvector"
 LABEL org.opencontainers.image.description="SyneHQ PostgreSQL with pgvector for vector similarity search"
 LABEL org.opencontainers.image.licenses="MIT"
 
+RUN apk add --no-cache tzdata musl-locales musl-locales-lang
+
+# Set environment variables
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+
 # Create directory for custom configurations
 RUN mkdir -p /etc/postgresql/conf.d && \
     chown -R postgres:postgres /etc/postgresql/conf.d
@@ -19,6 +26,7 @@ COPY init.sql /docker-entrypoint-initdb.d/init.sql
 
 # Create healthcheck script
 COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
+
 #!/bin/bash
 set -eo pipefail
 
@@ -47,6 +55,8 @@ RUN chmod +x /usr/local/bin/docker-healthcheck
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD ["docker-healthcheck"]
+
+VOLUME ["/var/lib/postgresql/data", "/var/lib/postgresql/log", "/etc/postgresql/ssl"]
 
 # Expose PostgreSQL port
 EXPOSE 5432
