@@ -40,6 +40,7 @@ docker run -d --name postgres-pgvector \
 docker run -d --name postgres-pg \
     -e POSTGRES_PASSWORD=your_password \
     -p 5432:5432 \
+    -v $(pwd)/certificates:/etc/postgresql/ssl \
     ghcr.io/synehq/pg
 ```
 
@@ -89,6 +90,7 @@ docker run -d --name postgres-pgvector \
 ```bash
 docker run -d --name postgres-pg \
     -e POSTGRES_PASSWORD=your_password \
+    -v $(pwd)/certificates:/etc/postgresql/ssl \
     -p 5432:5432 \
     ghcr.io/synehq/pg
 ```
@@ -104,6 +106,7 @@ docker exec -it postgres-pgvector psql -U postgres
 ### 🔧 Initial Setup
 
 The container automatically:
+
 - 🔌 Enables the vector and pg_stat_statements extensions
 - 📋 Creates a sample 'items' table with vector embedding support
 - 🚀 Sets up an IVFFlat index for efficient similarity search
