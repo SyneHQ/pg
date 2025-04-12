@@ -34,6 +34,9 @@ RUN chown postgres:postgres /docker-entrypoint-initdb.d/init.sql
 # Copy entrypoint file
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
+# make entrypoint executable
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Expose PostgreSQL port
 EXPOSE 5432
 

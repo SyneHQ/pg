@@ -34,6 +34,9 @@ COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
 # Copy entrypoint file
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
+# make entrypoint executable
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 #!/bin/bash
 set -eo pipefail
 
