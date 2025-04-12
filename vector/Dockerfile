@@ -25,14 +25,16 @@ RUN mkdir -p /etc/postgresql/conf.d && \
 COPY postgresql.conf /etc/postgresql/conf.d/
 RUN chown postgres:postgres /etc/postgresql/conf.d/postgresql.conf
 
+
+# Copy entrypoint file
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chown postgres:postgres /usr/local/bin/entrypoint.sh
+
 # Copy initialization script
 COPY init.sql /docker-entrypoint-initdb.d/init.sql
 
 # Create healthcheck script
 COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
-
-# Copy entrypoint file
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # make entrypoint executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
