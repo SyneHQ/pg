@@ -31,11 +31,15 @@ RUN chown postgres:postgres /etc/postgresql/conf.d/postgresql.conf
 COPY init.sql /docker-entrypoint-initdb.d/
 RUN chown postgres:postgres /docker-entrypoint-initdb.d/init.sql
 
+# Copy entrypoint file
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
 # Expose PostgreSQL port
 EXPOSE 5432
 
 # Create healthcheck script
 COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
+
 #!/bin/bash
 set -eo pipefail
 
@@ -68,5 +72,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 # Create a volume for persistent data
 VOLUME ["/var/lib/postgresql/data", "/var/lib/postgresql/log", "/etc/postgresql/ssl"]
 
-# Set production-ready PostgreSQL configurations
-CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

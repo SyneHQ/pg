@@ -27,6 +27,9 @@ COPY init.sql /docker-entrypoint-initdb.d/init.sql
 # Create healthcheck script
 COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
 
+# Copy entrypoint file
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
 #!/bin/bash
 set -eo pipefail
 
@@ -61,5 +64,4 @@ VOLUME ["/var/lib/postgresql/data", "/var/lib/postgresql/log", "/etc/postgresql/
 # Expose PostgreSQL port
 EXPOSE 5432
 
-# Set the default command to use the custom config file
-CMD ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
