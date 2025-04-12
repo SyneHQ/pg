@@ -14,6 +14,16 @@ chown postgres:postgres /etc/postgresql/ssl/server.crt /etc/postgresql/ssl/serve
 echo "Verifying permissions and ownership..."
 ls -l /etc/postgresql/ssl/server.crt /etc/postgresql/ssl/server.key
 
+
+# Set proper permissions for PostgreSQL data directory
+echo "Setting permissions for PostgreSQL data directory..."
+chown -R postgres:postgres /var/lib/postgresql/data
+chmod 700 /var/lib/postgresql/data
+
+# Verify data directory permissions
+echo "Verifying data directory permissions..."
+ls -ld /var/lib/postgresql/data
+
 # Switch to postgres user before starting the server
 echo "Switching to postgres user..."
 if [ "$(id -u)" = "0" ]; then
