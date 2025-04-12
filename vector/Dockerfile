@@ -6,7 +6,11 @@ LABEL org.opencontainers.image.source="https://github.com/synehq/pg-pgvector"
 LABEL org.opencontainers.image.description="SyneHQ PostgreSQL with pgvector for vector similarity search"
 LABEL org.opencontainers.image.licenses="MIT"
 
-RUN apk add --no-cache tzdata musl-locales musl-locales-lang
+# update packages
+RUN apt update
+RUN apt upgrade -y
+
+RUN apt install tzdata
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
