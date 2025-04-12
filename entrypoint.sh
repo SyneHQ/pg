@@ -14,6 +14,11 @@ chown postgres:postgres /etc/postgresql/ssl/server.crt /etc/postgresql/ssl/serve
 echo "Verifying permissions and ownership..."
 ls -l /etc/postgresql/ssl/server.crt /etc/postgresql/ssl/server.key
 
-# Start PostgreSQL
-echo "Starting PostgreSQL with configuration file..."
-exec postgres -c config_file=/etc/postgresql/conf.d/postgresql.conf
+# Switch to postgres user before starting the server
+echo "Switching to postgres user..."
+if [ "$(id -u)" = "0" ]; then
+    exec su postgres -c "postgres -c config_file=/etc/postgresql/conf.d/postgresql.conf"
+else
+    echo "Starting PostgreSQL with configuration file..."
+    exec postgres -c config_file=/etc/postgresql/conf.d/postgresql.conf
+fi
