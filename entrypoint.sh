@@ -56,7 +56,7 @@ docker_create_db_directories() {
         chown postgres:postgres /var/lib/postgresql/log
         chown -R postgres:postgres /etc/postgresql/ssl
         
-        # Verify SSL file permissions
+        # Verify SSL file permissions it should be 600
         if [ -d "/etc/postgresql/ssl" ]; then
             find /etc/postgresql/ssl -type f -exec chmod 600 {} \;
         fi
