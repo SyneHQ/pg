@@ -16,6 +16,9 @@ RUN apt install tzdata
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+ENV PGPASSWORD=${PGPASSWORD:-${POSTGRES_PASSWORD:-postgres}}
+ENV POSTGRES_USER=${POSTGRES_USER:-postgres}
+ENV POSTGRES_DB=${POSTGRES_DB:-postgres}
 
 # Create directory for logs
 RUN mkdir -p /var/lib/postgresql/log && \
