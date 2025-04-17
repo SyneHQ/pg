@@ -1,0 +1,24 @@
+services:
+  vector:
+    build:
+      context: .
+      dockerfile: vector/Dockerfile
+    command: ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]
+    volumes:
+      - ./certificates:/etc/postgresql/ssl
+      - ./data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+
+  pg:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./certificates:/etc/postgresql/ssl
+      - ./data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    command: ["postgres", "-c", "config_file=/etc/postgresql/conf.d/postgresql.conf"]

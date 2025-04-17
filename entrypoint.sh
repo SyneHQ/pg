@@ -304,6 +304,9 @@ _pg_want_help() {
 check_ssl_certs() {
     echo "Checking SSL certificates..."
     PG_SSL_PATH="/etc/postgresql/ssl"
+
+	# do ls in /etc/postgresql/ssl
+    ls -la "$PG_SSL_PATH"
     if [ -f "$PG_SSL_PATH/server.key" ] && [ -f "$PG_SSL_PATH/server.crt" ]; then
         echo "SSL certificates found in $PG_SSL_PATH"
         # check if the certificates are valid

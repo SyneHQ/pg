@@ -12,10 +12,6 @@ RUN apk add --no-cache tzdata musl-locales musl-locales-lang
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
-ENV POSTGRES_HOST_AUTH_METHOD=scram-sha-256
-ENV POSTGRES_PASSWORD=${PGPASSWORD:-${POSTGRES_PASSWORD:-postgres}}
-ENV POSTGRES_USER=${POSTGRES_USER:-postgres}
-ENV POSTGRES_DB=${POSTGRES_DB:-postgres}
 
 # Create directory for logs
 RUN mkdir -p /var/lib/postgresql/log && \
@@ -24,6 +20,11 @@ RUN mkdir -p /var/lib/postgresql/log && \
 # Create directory for custom configurations
 RUN mkdir -p /etc/postgresql/conf.d && \
     chown -R postgres:postgres /etc/postgresql/conf.d
+
+# Create directory for SSL certificates
+RUN mkdir -p /etc/postgresql/ssl && \
+    chown -R postgres:postgres /etc/postgresql/ssl && \
+    chmod 700 /etc/postgresql/ssl
 
 # Copy custom PostgreSQL configuration
 COPY postgresql.conf /etc/postgresql/conf.d/

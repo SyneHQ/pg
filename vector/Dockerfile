@@ -10,15 +10,11 @@ LABEL org.opencontainers.image.licenses="MIT"
 RUN apt update
 RUN apt upgrade -y
 
-RUN apt install tzdata
+RUN apt install -y tzdata
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
-ENV POSTGRES_HOST_AUTH_METHOD=scram-sha-256
-ENV POSTGRES_PASSWORD=${PGPASSWORD:-${POSTGRES_PASSWORD:-postgres}}
-ENV POSTGRES_USER=${POSTGRES_USER:-postgres}
-ENV POSTGRES_DB=${POSTGRES_DB:-postgres}
 
 # Create directory for logs
 RUN mkdir -p /var/lib/postgresql/log && \
@@ -28,10 +24,14 @@ RUN mkdir -p /var/lib/postgresql/log && \
 RUN mkdir -p /etc/postgresql/conf.d && \
     chown -R postgres:postgres /etc/postgresql/conf.d
 
+# Create directory for SSL certificates
+RUN mkdir -p /etc/postgresql/ssl && \
+    chown -R postgres:postgres /etc/postgresql/ssl && \
+    chmod 700 /etc/postgresql/ssl
+
 # Copy custom PostgreSQL configuration
 COPY postgresql.conf /etc/postgresql/conf.d/
 RUN chown postgres:postgres /etc/postgresql/conf.d/postgresql.conf
-
 
 # Copy entrypoint file
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -44,7 +44,6 @@ COPY init.sql /docker-entrypoint-initdb.d/init.sql
 
 # Create healthcheck script
 COPY --chown=postgres:postgres <<'EOF' /usr/local/bin/docker-healthcheck
-
 
 #!/bin/bash
 set -eo pipefail
@@ -75,6 +74,7 @@ RUN chmod +x /usr/local/bin/docker-healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD ["docker-healthcheck"]
 
+# Create volume mount points
 VOLUME ["/var/lib/postgresql/data", "/var/lib/postgresql/log", "/etc/postgresql/ssl"]
 
 # Expose PostgreSQL port
