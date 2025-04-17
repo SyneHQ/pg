@@ -63,19 +63,37 @@ docker_create_db_directories() {
     fi
 }
 
-# Setup environment variables
+# Function to setup PostgreSQL environment variables
 docker_setup_env() {
-    file_env 'POSTGRES_PASSWORD'
-    file_env 'POSTGRES_USER' 'postgres'
-    file_env 'POSTGRES_DB' "$POSTGRES_USER"
-    file_env 'POSTGRES_INITDB_ARGS'
-    : "${POSTGRES_HOST_AUTH_METHOD:=scram-sha-256}"
-    
-    # Set PGPASSWORD to match POSTGRES_PASSWORD
-    export PGPASSWORD="$POSTGRES_PASSWORD"
+    # Set PGPASSWORD from environment or file, using POSTGRES_PASSWORD as default
+    file_env 'PGPASSWORD' "$POSTGRES_PASSWORD"
 
+    # Set POSTGRES_USER from environment or file
+    file_env 'POSTGRES_USER' "$POSTGRES_USER"
+
+    # If POSTGRES_USER is empty, set it to default 'postgres'
+    if [ -z "$POSTGRES_USER" ]; then
+        file_env 'POSTGRES_USER' 'postgres'
+    fi
+
+    # If POSTGRES_DB is not set, use POSTGRES_USER value as the database name
+    if [ -z "$POSTGRES_DB" ]; then
+        file_env 'POSTGRES_DB' "$POSTGRES_USER"
+    fi 
+
+    # Set any additional initialization arguments for PostgreSQL
+    file_env 'POSTGRES_INITDB_ARGS'
+
+    # Set default authentication method to scram-sha-256 if not specified
+    : "${POSTGRES_HOST_AUTH_METHOD:=scram-sha-256}"
+
+    # Declare global variable to track if database already exists
     declare -g DATABASE_ALREADY_EXISTS
+
+    # Initialize DATABASE_ALREADY_EXISTS as empty
     : "${DATABASE_ALREADY_EXISTS:=}"
+
+    # Check if PG_VERSION file exists and has content, indicating existing database
     if [ -s "$PGDATA/PG_VERSION" ]; then
         DATABASE_ALREADY_EXISTS='true'
     fi
