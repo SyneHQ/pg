@@ -70,6 +70,9 @@ docker_setup_env() {
     file_env 'POSTGRES_DB' "$POSTGRES_USER"
     file_env 'POSTGRES_INITDB_ARGS'
     : "${POSTGRES_HOST_AUTH_METHOD:=scram-sha-256}"
+    
+    # Set PGPASSWORD to match POSTGRES_PASSWORD
+    export PGPASSWORD="$POSTGRES_PASSWORD"
 
     declare -g DATABASE_ALREADY_EXISTS
     : "${DATABASE_ALREADY_EXISTS:=}"
