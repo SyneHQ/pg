@@ -307,18 +307,15 @@ check_ssl_certs() {
 
     # do ls in /etc/postgresql/ssl
     ls -la "$PG_SSL_PATH"
-    if [ -L "$PG_SSL_PATH/fullchain.pem" ] && [ -L "$PG_SSL_PATH/privkey.pem" ]; then
+    if [ -f "$PG_SSL_PATH/fullchain.pem" ] && [ -f "$PG_SSL_PATH/privkey.pem" ]; then
         echo "SSL certificates found in $PG_SSL_PATH"
-        # check if the target files have correct permissions
-        FULLCHAIN_TARGET=$(readlink -f "$PG_SSL_PATH/fullchain.pem")
-        PRIVKEY_TARGET=$(readlink -f "$PG_SSL_PATH/privkey.pem")
-        
-        if [ "$(stat -c %a "$FULLCHAIN_TARGET")" != "600" ]; then
-            echo "SSL certificate target has incorrect permissions"
+        # check if files have correct permissions
+        if [ "$(stat -c %a "$PG_SSL_PATH/fullchain.pem")" != "600" ]; then
+            echo "SSL certificate has incorrect permissions"
             exit 1
         fi
-        if [ "$(stat -c %a "$PRIVKEY_TARGET")" != "600" ]; then
-            echo "SSL private key target has incorrect permissions"
+        if [ "$(stat -c %a "$PG_SSL_PATH/privkey.pem")" != "600" ]; then
+            echo "SSL private key has incorrect permissions"
             exit 1
         fi
     else
