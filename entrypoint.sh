@@ -305,26 +305,26 @@ check_ssl_certs() {
     echo "Checking SSL certificates..."
     PG_SSL_PATH="/etc/postgresql/ssl"
 
-	# do ls in /etc/postgresql/ssl
+    # do ls in /etc/postgresql/ssl
     ls -la "$PG_SSL_PATH"
-    if [ -f "$PG_SSL_PATH/server.key" ] && [ -f "$PG_SSL_PATH/server.crt" ]; then
+    if [ -f "$PG_SSL_PATH/fullchain.pem" ] && [ -f "$PG_SSL_PATH/privkey.pem" ]; then
         echo "SSL certificates found in $PG_SSL_PATH"
         # check if the certificates are valid
-        if ! openssl x509 -in "$PG_SSL_PATH/server.crt" -text -noout > /dev/null 2>&1; then
+        if ! openssl x509 -in "$PG_SSL_PATH/fullchain.pem" -text -noout > /dev/null 2>&1; then
             echo "SSL certificate is not valid"
             exit 1
         fi
         # check if the private key is valid
-        if ! openssl rsa -in "$PG_SSL_PATH/server.key" -check -noout > /dev/null 2>&1; then
+        if ! openssl rsa -in "$PG_SSL_PATH/privkey.pem" -check -noout > /dev/null 2>&1; then
             echo "SSL private key is not valid"
             exit 1
         fi
         # check if both the files have 600 permissions
-        if [ "$(stat -c %a "$PG_SSL_PATH/server.crt")" != "600" ]; then
+        if [ "$(stat -c %a "$PG_SSL_PATH/fullchain.pem")" != "600" ]; then
             echo "SSL certificate has incorrect permissions"
             exit 1
         fi
-        if [ "$(stat -c %a "$PG_SSL_PATH/server.key")" != "600" ]; then
+        if [ "$(stat -c %a "$PG_SSL_PATH/privkey.pem")" != "600" ]; then
             echo "SSL private key has incorrect permissions"
             exit 1
         fi

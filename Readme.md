@@ -59,21 +59,7 @@ docker build -t synehq/pg .
 
 Need some certificates but don't want the hassle? We've got you covered! 🛡️
 
-```bash
-# Create directories
-mkdir -p certificates
-
-# Generate self-signed certificate (abracadabra! 🪄)
-openssl req -new -x509 -days 365 -nodes \
-  -out certificates/server.crt \
-  -keyout certificates/server.key \
-  -subj "/CN=postgres" \
-  -addext "subjectAltName = DNS:postgres,DNS:localhost,IP:127.0.0.1"
-
-# Set permissions (keep it secret, keep it safe! 🧙‍♂️)
-chmod 600 certificates/server.key
-chmod 644 certificates/server.crt
-```
+[Check this article here](https://somnathrakshit.github.io/blog/postgres-expose/)
 
 This approach provides secure ways to pass SSL certificates to your PostgreSQL container, ensuring proper encryption for your database connections while maintaining security best practices.
 
