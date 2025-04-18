@@ -301,41 +301,6 @@ _pg_want_help() {
 	return 1
 }
 
-check_ssl_certs() {
-    echo "Checking SSL certificates..."
-    PG_SSL_PATH="/etc/postgresql/ssl"
-
-    # do ls in /etc/postgresql/ssl
-    ls -la "$PG_SSL_PATH"
-    if [ -L "$PG_SSL_PATH/fullchain.pem" ] && [ -L "$PG_SSL_PATH/privkey.pem" ]; then
-        echo "SSL certificates found in $PG_SSL_PATH"
-        # check if the target files have correct permissions
-        FULLCHAIN_TARGET=$(readlink -f "$PG_SSL_PATH/fullchain.pem")
-        PRIVKEY_TARGET=$(readlink -f "$PG_SSL_PATH/privkey.pem")
-        
-        if [ "$(stat -c %a "$FULLCHAIN_TARGET")" != "600" ]; then
-            echo "SSL certificate target has incorrect permissions"
-            exit 1
-        fi
-        if [ "$(stat -c %a "$PRIVKEY_TARGET")" != "600" ]; then
-            echo "SSL private key target has incorrect permissions"
-            exit 1
-        fi
-		
-        # Check if the certificate and key match
-        CERT_MOD=$(openssl x509 -noout -modulus -in "$PG_SSL_PATH/fullchain.pem" | openssl md5)
-        KEY_MOD=$(openssl rsa -noout -modulus -in "$PG_SSL_PATH/privkey.pem" | openssl md5)
-
-        if [ "$CERT_MOD" != "$KEY_MOD" ]; then
-            echo "SSL certificate and private key do not match"
-            exit 1
-        fi
-    else
-        echo "SSL certificates not found in $PG_SSL_PATH"
-        exit 1
-    fi
-}
-
 _main() {
 	# if first arg looks like a flag, assume we want to run postgres server
 	if [ "${1:0:1}" = '-' ]; then
@@ -344,7 +309,6 @@ _main() {
 
 	if [ "$1" = 'postgres' ] && ! _pg_want_help "$@"; then
 		docker_setup_env
-        check_ssl_certs
 		# setup data directories and permissions (when run as root)
 		docker_create_db_directories
 		if [ "$(id -u)" = '0' ]; then
