@@ -309,16 +309,6 @@ check_ssl_certs() {
     ls -la "$PG_SSL_PATH"
     if [ -L "$PG_SSL_PATH/fullchain.pem" ] && [ -L "$PG_SSL_PATH/privkey.pem" ]; then
         echo "SSL certificates found in $PG_SSL_PATH"
-        # check if the certificates are valid
-        if ! openssl x509 -in "$PG_SSL_PATH/fullchain.pem" -text -noout > /dev/null 2>&1; then
-            echo "SSL certificate is not valid"
-            exit 1
-        fi
-        # check if the private key is valid
-        if ! openssl rsa -in "$PG_SSL_PATH/privkey.pem" -check -noout > /dev/null 2>&1; then
-            echo "SSL private key is not valid"
-            exit 1
-        fi
         # check if the target files have correct permissions
         FULLCHAIN_TARGET=$(readlink -f "$PG_SSL_PATH/fullchain.pem")
         PRIVKEY_TARGET=$(readlink -f "$PG_SSL_PATH/privkey.pem")
@@ -329,6 +319,15 @@ check_ssl_certs() {
         fi
         if [ "$(stat -c %a "$PRIVKEY_TARGET")" != "600" ]; then
             echo "SSL private key target has incorrect permissions"
+            exit 1
+        fi
+		
+        # Check if the certificate and key match
+        CERT_MOD=$(openssl x509 -noout -modulus -in "$PG_SSL_PATH/fullchain.pem" | openssl md5)
+        KEY_MOD=$(openssl rsa -noout -modulus -in "$PG_SSL_PATH/privkey.pem" | openssl md5)
+
+        if [ "$CERT_MOD" != "$KEY_MOD" ]; then
+            echo "SSL certificate and private key do not match"
             exit 1
         fi
     else
